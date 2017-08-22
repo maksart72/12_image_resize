@@ -22,9 +22,8 @@ def get_arguments():
 def load_image(filename):
     try:
         original = Image.open(filename)
-    except:
+    except OSError:
         print("Unable to load image")
-        sys.exit(1)
     return original
 
 
@@ -38,26 +37,29 @@ def save_image(original, size, dest_path):
 
 def validate_arguments(new_width, new_height):
     if new_width == 0 or new_height == 0:
-        print('Size "0" is not valid!')
-        sys.exit(1)
-    return
+        return
+    else:
+        return True
 
-def get_new_filename(filename, new_width, new_height, output):
+def get_new_filename(filename, new_size, output):
 
+    new_width,new_height = new_size
     file_name, file_extension = os.path.splitext(filename)
     filename_path = file_name.split('\\')
     filename_full = filename_path[-1]
     if output:
-        name = output + filename_full
+        new_name = output + filename_full
     else:
-        name = filename_full
-    new_filename = str('%s__%dx%d.%s' % (name, new_width, new_height, file_extension))
+        new_name = filename_full
+    new_filename = str('%s__%dx%d%s' % (new_name, new_width, new_height, file_extension))
     return new_filename
 
-def calculate_size(original_width, original_height, new_width, new_height, scale):
+def calculate_size(original_size, new_width, new_height, scale):
+
+    original_width, original_height = original_size 
     new_size = ()
     if scale:
-        print('Scale! Width and height ignored!')
+        print('You input scale! Width and height parameters are ignored!')
         new_size = (int(original_width * scale), int(original_height * scale))
     else:
         if new_width and new_height:
@@ -81,13 +83,14 @@ if __name__ == '__main__':
         parameters = arguments.parse_args()
         filename = parameters.filename
         original_image = load_image(filename)
-        width = original_image.size[0]
-        height = original_image.size[1]
-        validate_arguments(parameters.width, parameters.height)
-        calculate_size(width, height, parameters.width,
-                       parameters.height, parameters.scale)
-        new_size = calculate_size(
-            width, height, parameters.width, parameters.height, parameters.scale)
-        new_filename = get_new_filename(
-            parameters.filename, new_size[0], new_size[1], parameters.output)
-        save_image(original_image, new_size, new_filename)
+        
+        if not validate_arguments(parameters.width, parameters.height):
+            print('New size can not be set to "0"!')
+        else:
+            new_size = calculate_size(
+                original_image.size, parameters.width, parameters.height, parameters.scale)
+        
+            new_filename = get_new_filename(
+                parameters.filename, new_size, parameters.output)
+        
+            save_image(original_image, new_size, new_filename)
