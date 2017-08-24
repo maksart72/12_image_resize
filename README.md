@@ -1,5 +1,8 @@
 # Image Resizer
 
+This is image resize utility. You can set new custom width and height of image or use scale parameter to save proportion.
+Original image doesn't changed, new one created in the directory which you can also set.
+
 Usage description.
 
 ```usage: image_resize.py [-h] [-w [WIDTH]] [-H [HEIGHT]] [-s [SCALE]] [-o [OUTPUT]] filename
